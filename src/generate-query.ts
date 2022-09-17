@@ -24,6 +24,9 @@ import {
     BooleanValueNode
   } from 'graphql'
 
+  import * as graphqlData from './generated/graphql'
+  import * as graphqlDataTypes from './generated/graphql'
+
   import * as seedrandom from 'seedrandom'
 
   import merge from 'merge'
@@ -1172,6 +1175,8 @@ import {
   }
 
   const generateValuesForField = (field: FieldDefinitionNode, schema: GraphQLSchema) => {
+    console.log({graphqlData})
+    console.log({graphqlDataTypes})
 
       // variableValues[varName] = getRandomEnum(argType)
       // variableValues[varName] = getDefaultArgValue(schema, config, arg.type)
@@ -1180,37 +1185,33 @@ import {
       const allArgs = field.arguments
 
 
-      const argTypes = allArgs?.map(arg => {
+      const argTypes = allArgs?.map((arg, index) => {
         const varName = `Mutation__${field.name.value}__${arg.name.value}`
         const typeForField = schema.getType(getTypeName(arg.type));
 
+        if (index === 0) {
+          console.log("getTypeName", getTypeName(arg.type))
+          console.log('arg', arg)
+          console.log('typeForArg', typeForField)
+        }
+
         if (typeForField?.name === "String") {
           variables[varName] = "Placeholder"
-          console.log("is string", arg, typeForField, varName)
         }
         if (typeForField?.name === "Boolean") {
           variables[varName] = true
-          console.log("is boolean", arg, varName)
         }
         if (typeForField?.name === "ID") {
           variables[varName] = "Placeholder ID"
-          console.log("is ID")
         }
 
         if (typeForField?.name === "Int") {
           variables[varName] = 1
-          console.log("is Int")
         }
 
         if (typeForField?.name === "Float") {
           variables[varName] = 0.5
-          console.log("is Float")
         }
-
-
-        // console.log({field})
-        // console.log("arg", arg)
-        // console.log("typeForField", typeForField)
 
         return typeForField
       })
@@ -1247,7 +1248,7 @@ import {
     const mutationRoot = schema.getMutationType()!.astNode!
 
     // iterate through all the fields and product a document + variable set for each
-    generateValuesForField(mutationRoot.fields?.[5], schema)
+    generateValuesForField(mutationRoot.fields![0], schema)
     mutationRoot.fields?.map(field => {
     })
 
