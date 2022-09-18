@@ -1230,8 +1230,6 @@ import {
     const output: { [key: string]: any } = {}
     const fields = node.fields
 
-    // console.log({node})
-
     fields?.forEach(field => {
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
@@ -1294,7 +1292,7 @@ import {
         }
       })
 
-      console.log({output})
+      return output
   }
 
   export function generateMutations(
@@ -1311,7 +1309,13 @@ import {
     }
 
     const mutationRoot = schema.getMutationType()!.astNode!
-    generateArgsForMutation(mutationRoot.fields![5], schema)
+    const mutationArgs = mutationRoot.fields?.map(field => ({
+      name: field.name.value,
+      variables: generateArgsForMutation(field, schema)
+    }))
+
+    console.log("all fields", mutationRoot.fields)
+    console.log({mutationArgs})
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
     //   schema,
