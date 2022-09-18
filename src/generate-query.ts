@@ -1204,6 +1204,10 @@ import {
       return "https://google.com"
     }
 
+    if (argTypeName === "DateTime") {
+      return new Date().toISOString()
+    }
+
     return "todo: custom scalar value"
   }
 
@@ -1226,6 +1230,8 @@ import {
     const output: { [key: string]: any } = {}
     const fields = node.fields
 
+    // console.log({node})
+
     fields?.forEach(field => {
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
@@ -1244,7 +1250,7 @@ import {
       }
 
       if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-        // add fields and recurse
+        output[field.name.value] = getNestedObjectValues(nextNode, schema)
       }
     })
 
@@ -1256,8 +1262,7 @@ import {
       const output: { [key: string]: any } = {}
 
       mutationArgs?.forEach(argument => {
-        console.log({argument})
-        const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
+        const varName = argument.name.value
         const argTypeName = getTypeName(argument.type);
         const fieldTyping = schema.getType(argTypeName);
 
@@ -1298,7 +1303,7 @@ import {
 
     const mutationRoot = schema.getMutationType()!.astNode!
     // iterate through all the fields and product a document + variable set for each
-    generateArgsForMutation(mutationRoot.fields![1], schema)
+    generateArgsForMutation(mutationRoot.fields![7], schema)
     mutationRoot.fields?.map(field => {
     })
 
