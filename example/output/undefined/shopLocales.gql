@@ -1,0 +1,8 @@
+query shopLocales($published: Boolean){
+    shopLocales(published: $published){
+        locale
+        name
+        primary
+        published
+    }
+}

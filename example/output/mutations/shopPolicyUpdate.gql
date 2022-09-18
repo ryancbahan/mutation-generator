@@ -1,0 +1,20 @@
+mutation shopPolicyUpdate($locale: String!, $shopPolicy: ShopPolicyInput!){
+    shopPolicyUpdate(shopPolicy: $shopPolicy){
+        shopPolicy{
+            body
+            id
+            translations(locale: $locale){
+                key
+                locale
+                value
+            }
+            type
+            url
+        }
+        userErrors{
+            code
+            field
+            message
+        }
+    }
+}

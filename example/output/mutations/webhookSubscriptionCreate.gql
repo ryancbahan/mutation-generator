@@ -1,0 +1,20 @@
+mutation webhookSubscriptionCreate($topic: WebhookSubscriptionTopic!, $webhookSubscription: WebhookSubscriptionInput!){
+    webhookSubscriptionCreate(topic: $topic, webhookSubscription: $webhookSubscription){
+        userErrors{
+            field
+            message
+        }
+        webhookSubscription{
+            createdAt
+            endpoint
+            format
+            id
+            includeFields
+            legacyResourceId
+            metafieldNamespaces
+            privateMetafieldNamespaces
+            topic
+            updatedAt
+        }
+    }
+}

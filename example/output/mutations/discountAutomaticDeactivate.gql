@@ -1,0 +1,43 @@
+mutation discountAutomaticDeactivate($first: Int, $after: String, $last: Int, $before: String, $reverse: Boolean, $sortKey: EventSortKeys, $query: String, $id: ID!){
+    discountAutomaticDeactivate(id: $id){
+        automaticDiscountNode{
+            automaticDiscount
+            events(first: $first, after: $after, last: $last, before: $before, reverse: $reverse, sortKey: $sortKey, query: $query){
+                edges{
+                    cursor
+                    node{
+                        appTitle
+                        attributeToApp
+                        attributeToUser
+                        createdAt
+                        criticalAlert
+                        id
+                        message
+                    }
+                }
+                nodes{
+                    appTitle
+                    attributeToApp
+                    attributeToUser
+                    createdAt
+                    criticalAlert
+                    id
+                    message
+                }
+                pageInfo{
+                    endCursor
+                    hasNextPage
+                    hasPreviousPage
+                    startCursor
+                }
+            }
+            id
+        }
+        userErrors{
+            code
+            extraInfo
+            field
+            message
+        }
+    }
+}

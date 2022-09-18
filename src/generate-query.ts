@@ -22,7 +22,8 @@ import {
     GraphQLNamedType,
     ListValueNode,
     BooleanValueNode,
-    InputObjectTypeDefinitionNode
+    InputObjectTypeDefinitionNode,
+    OperationTypeNode
   } from 'graphql'
 
   import * as graphqlData from './generated/graphql'
@@ -162,6 +163,9 @@ import {
       variableValues
     } = getSelectionSetAndVars(schema, node, config)
 
+    console.log({selectionSet})
+    console.log({variableDefinitionsMap})
+
     // Throw error if mutation would be empty
     if (selectionSet.selections.length === 0) {
       throw new Error(
@@ -172,7 +176,7 @@ import {
     return {
       mutationDocument: {
         kind: Kind.OPERATION_DEFINITION,
-        operation: 'mutation',
+        operation: 'mutation' as OperationTypeNode,
         selectionSet,
         variableDefinitions: Object.values(variableDefinitionsMap),
         loc,
@@ -183,11 +187,11 @@ import {
   }
 
   export function getTypeName(type: TypeNode): string {
-    if (type.kind === Kind.NAMED_TYPE) {
+    if (type?.kind === Kind.NAMED_TYPE) {
       return type.name.value
-    } else if (type.kind === Kind.LIST_TYPE) {
+    } else if (type?.kind === Kind.LIST_TYPE) {
       return getTypeName(type.type)
-    } else if (type.kind === Kind.NON_NULL_TYPE) {
+    } else if (type?.kind === Kind.NON_NULL_TYPE) {
       return getTypeName(type.type)
     } else {
       throw new Error(`Cannot get name of type: ${type}`)
@@ -314,7 +318,7 @@ import {
   ): ReadonlyArray<FieldDefinitionNode> {
     const results = []
 
-    console.log("fields at top of getRandomFields", fields)
+    // console.log("fields at top of getRandomFields", fields)
 
 
     // Create lists of nested and flat fields to pick from
@@ -837,8 +841,10 @@ import {
       [variableName: string]: any
     }
   } {
-    console.log('top of getselection', node)
+    // console.log('top of getselection', node)
     let selections: SelectionNode[] = []
+    console.log({node})
+    console.log({selections})
     let variableDefinitionsMap: {
       [variableName: string]: VariableDefinitionNode
     } = {}
@@ -854,15 +860,15 @@ import {
     }
 
     if (node.kind === Kind.OBJECT_TYPE_DEFINITION) {
-      console.log("node and fields before getRandomFields", node, node.fields)
+      // console.log("node and fields before getRandomFields", node, node.fields)
       let fields = getRandomFields(node.fields, config, schema, depth)
       let nextNode
 
-      console.log("fields after getRandomFields", fields)
+      // console.log("fields after getRandomFields", fields)
 
       fields.forEach((field) => {
         // Recurse, if field has children:
-          nextNode = schema.getType(getTypeName(field.type)).astNode
+          nextNode = schema?.getType(getTypeName(field?.type))?.astNode
         let selectionSet: SelectionSetNode = undefined
         if (typeof nextNode !== 'undefined') {
           const res = getSelectionSetAndVars(schema, nextNode, config, depth + 1)
@@ -1311,6 +1317,7 @@ import {
     const mutationRoot = schema.getMutationType()!.astNode!
     const outputs = mutationRoot.fields?.map(field => {
       const args = generateArgsForMutation(field, schema)
+      console.log({args})
       const mutationDocument = {
         kind: Kind.OPERATION_DEFINITION,
         operation: 'mutation',
@@ -1323,8 +1330,6 @@ import {
       return {mutationDocument, args}
     });
 
-    console.log({outputs})
-
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
     //   schema,
@@ -1333,13 +1338,13 @@ import {
 
     // const definitions = [mutationDocument]
 
-    // return {
-    //   mutationDocument: getDocumentDefinition(definitions),
-    //   variableValues,
-    //   seed: finalConfig.seed,
-    //   typeCount: finalConfig.typeCount,
-    //   resolveCount: finalConfig.resolveCount
-    // }
+    return {
+      mutationDocument: getDocumentDefinition(definitions),
+      variableValues,
+      seed: finalConfig.seed,
+      typeCount: finalConfig.typeCount,
+      resolveCount: finalConfig.resolveCount
+    }
   }
 
   export function generateRandomQuery(

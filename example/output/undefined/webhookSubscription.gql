@@ -1,0 +1,14 @@
+query webhookSubscription($id: ID!){
+    webhookSubscription(id: $id){
+        createdAt
+        endpoint
+        format
+        id
+        includeFields
+        legacyResourceId
+        metafieldNamespaces
+        privateMetafieldNamespaces
+        topic
+        updatedAt
+    }
+}

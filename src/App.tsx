@@ -21,13 +21,13 @@ function App() {
     ignoreOptionalArguments: true,
   };
 
-  const mutations = generateMutations(
+  const { mutationDocument, variableValues } = generateMutations(
     validSchema,
     configuration
   );
 
-  // console.log('printed', print(mutationDocument))
-  // console.log({mutationDocument, variableValues})
+  console.log('printed', print(mutationDocument))
+  console.log({mutationDocument})
 
 
   return (

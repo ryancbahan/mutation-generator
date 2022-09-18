@@ -1,0 +1,3 @@
+query giftCardsCount($enabled: Boolean){
+    giftCardsCount(enabled: $enabled)
+}

@@ -1,0 +1,21 @@
+mutation pubSubWebhookSubscriptionUpdate($id: ID!, $webhookSubscription: PubSubWebhookSubscriptionInput){
+    pubSubWebhookSubscriptionUpdate(id: $id, webhookSubscription: $webhookSubscription){
+        userErrors{
+            code
+            field
+            message
+        }
+        webhookSubscription{
+            createdAt
+            endpoint
+            format
+            id
+            includeFields
+            legacyResourceId
+            metafieldNamespaces
+            privateMetafieldNamespaces
+            topic
+            updatedAt
+        }
+    }
+}

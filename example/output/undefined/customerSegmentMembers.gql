@@ -1,0 +1,64 @@
+query customerSegmentMembers($withName: Boolean, $withCompany: Boolean, $attributeName: String!, $segmentId: ID, $query: String, $timezone: String, $reverse: Boolean, $sortKey: String, $first: Int, $after: String, $last: Int, $before: String){
+    customerSegmentMembers(segmentId: $segmentId, query: $query, timezone: $timezone, reverse: $reverse, sortKey: $sortKey, first: $first, after: $after, last: $last, before: $before){
+        edges{
+            cursor
+            node{
+                amountSpent{
+                    amount
+                    currencyCode
+                }
+                defaultAddress{
+                    address1
+                    address2
+                    city
+                    company
+                    country
+                    countryCodeV2
+                    firstName
+                    formatted(withName: $withName, withCompany: $withCompany)
+                    formattedArea
+                    id
+                    lastName
+                    latitude
+                    longitude
+                    name
+                    phone
+                    province
+                    provinceCode
+                    zip
+                }
+                defaultEmailAddress{
+                    emailAddress
+                    marketingState
+                    marketingUnsubscribeUrl
+                    openTrackingLevel
+                    openTrackingUrl
+                }
+                defaultPhoneNumber{
+                    marketingState
+                    phoneNumber
+                }
+                displayName
+                firstName
+                id
+                lastName
+                lastOrderId
+                note
+                numberOfOrders
+            }
+        }
+        pageInfo{
+            endCursor
+            hasNextPage
+            hasPreviousPage
+            startCursor
+        }
+        statistics{
+            attributeStatistics(attributeName: $attributeName){
+                average
+                sum
+            }
+            totalCount
+        }
+    }
+}

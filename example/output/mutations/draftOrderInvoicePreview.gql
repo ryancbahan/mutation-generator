@@ -1,0 +1,9 @@
+mutation draftOrderInvoicePreview($id: ID!, $email: EmailInput){
+    draftOrderInvoicePreview(id: $id, email: $email){
+        previewHtml
+        userErrors{
+            field
+            message
+        }
+    }
+}
