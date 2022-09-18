@@ -1309,13 +1309,22 @@ import {
     }
 
     const mutationRoot = schema.getMutationType()!.astNode!
-    const mutationArgs = mutationRoot.fields?.map(field => ({
-      name: field.name.value,
-      variables: generateArgsForMutation(field, schema)
-    }))
+    const outputs = mutationRoot.fields?.map(field => {
+      const args = generateArgsForMutation(field, schema)
+      const mutationDocument = {
+        kind: Kind.OPERATION_DEFINITION,
+        operation: 'mutation',
+        // selectionSet,
+        // variableDefinitions: Object.values(variableDefinitionsMap),
+        loc,
+        name: getName(field.name.value)
+      }
 
-    console.log("all fields", mutationRoot.fields)
-    console.log({mutationArgs})
+      return {mutationDocument, args}
+    });
+
+    console.log({outputs})
+
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
     //   schema,
@@ -1324,13 +1333,6 @@ import {
 
     // const definitions = [mutationDocument]
 
-    return {
-      mutationDocument: undefined,
-      variableValues: undefined,
-      seed: finalConfig.seed,
-      typeCount: finalConfig.typeCount,
-      resolveCount: finalConfig.resolveCount
-    }
     // return {
     //   mutationDocument: getDocumentDefinition(definitions),
     //   variableValues,

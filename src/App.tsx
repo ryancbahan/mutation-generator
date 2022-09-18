@@ -21,7 +21,7 @@ function App() {
     ignoreOptionalArguments: true,
   };
 
-  const { mutationDocument, variableValues } = generateMutations(
+  const mutations = generateMutations(
     validSchema,
     configuration
   );
