@@ -1,0 +1,18 @@
+mutation appCreditCreate($description: String!, $amount: MoneyInput!, $test: Boolean){
+    appCreditCreate(description: $description, amount: $amount, test: $test){
+        appCredit{
+            amount{
+                amount
+                currencyCode
+            }
+            createdAt
+            description
+            id
+            test
+        }
+        userErrors{
+            field
+            message
+        }
+    }
+}

@@ -1,0 +1,21 @@
+mutation appRevenueAttributionRecordCreate($appRevenueAttributionRecord: AppRevenueAttributionRecordInput!){
+    appRevenueAttributionRecordCreate(appRevenueAttributionRecord: $appRevenueAttributionRecord){
+        appRevenueAttributionRecord{
+            amount{
+                amount
+                currencyCode
+            }
+            capturedAt
+            createdAt
+            id
+            idempotencyKey
+            test
+            type
+        }
+        userErrors{
+            code
+            field
+            message
+        }
+    }
+}

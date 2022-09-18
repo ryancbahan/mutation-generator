@@ -1,0 +1,97 @@
+mutation appUsageRecordCreate($first: Int, $after: String, $last: Int, $before: String, $reverse: Boolean, $sortKey: AppUsageRecordSortKeys, $subscriptionLineItemId: ID!, $price: MoneyInput!, $description: String!){
+    appUsageRecordCreate(subscriptionLineItemId: $subscriptionLineItemId, price: $price, description: $description){
+        appUsageRecord{
+            createdAt
+            description
+            id
+            price{
+                amount
+                currencyCode
+            }
+            subscriptionLineItem{
+                id
+                plan{
+                    pricingDetails{
+                        ... on AppRecurringPricing {
+                            discount{
+                                durationLimitInIntervals
+                                priceAfterDiscount{
+                                    amount
+                                    currencyCode
+                                }
+                                remainingDurationInIntervals
+                                value{
+                                    ... on AppSubscriptionDiscountAmount {
+                                        amount{
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    ... on AppSubscriptionDiscountPercentage {
+                                        percentage
+                                    }
+                                }
+                            }
+                            interval
+                            price{
+                                amount
+                                currencyCode
+                            }
+                        }
+                        ... on AppUsagePricing {
+                            balanceUsed{
+                                amount
+                                currencyCode
+                            }
+                            cappedAmount{
+                                amount
+                                currencyCode
+                            }
+                            interval
+                            terms
+                        }
+                    }
+                }
+                usageRecords(first: $first, after: $after, last: $last, before: $before, reverse: $reverse, sortKey: $sortKey){
+                    edges{
+                        cursor
+                        node{
+                            createdAt
+                            description
+                            id
+                            price{
+                                amount
+                                currencyCode
+                            }
+                            subscriptionLineItem{
+                                id
+                            }
+                        }
+                    }
+                    nodes{
+                        createdAt
+                        description
+                        id
+                        price{
+                            amount
+                            currencyCode
+                        }
+                        subscriptionLineItem{
+                            id
+                        }
+                    }
+                    pageInfo{
+                        endCursor
+                        hasNextPage
+                        hasPreviousPage
+                        startCursor
+                    }
+                }
+            }
+        }
+        userErrors{
+            field
+            message
+        }
+    }
+}

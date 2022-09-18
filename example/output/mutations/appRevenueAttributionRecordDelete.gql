@@ -1,0 +1,10 @@
+mutation appRevenueAttributionRecordDelete($id: ID!){
+    appRevenueAttributionRecordDelete(id: $id){
+        deletedId
+        userErrors{
+            code
+            field
+            message
+        }
+    }
+}

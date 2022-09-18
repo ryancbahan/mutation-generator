@@ -21,7 +21,8 @@ import {
     DirectiveNode,
     GraphQLNamedType,
     ListValueNode,
-    BooleanValueNode
+    BooleanValueNode,
+    InputObjectTypeDefinitionNode
   } from 'graphql'
 
   import * as graphqlData from './generated/graphql'
@@ -1174,62 +1175,112 @@ import {
     }
   }
 
-  const generateValuesForField = (field: FieldDefinitionNode, schema: GraphQLSchema) => {
-    console.log({graphqlData})
-    console.log({graphqlDataTypes})
+  const getScalarValue = (argTypeName: string) => {
+    if (argTypeName === "String") {
+      return "Placeholder"
+    }
+    if (argTypeName === "Boolean") {
+      return true
+    }
+    if (argTypeName === "ID") {
+      return "Placeholder ID"
+    }
 
-      // variableValues[varName] = getRandomEnum(argType)
-      // variableValues[varName] = getDefaultArgValue(schema, config, arg.type)
-      const variables: { [key: string]: any } = {}
+    if (argTypeName === "Int") {
+      return 10
+    }
 
-      const allArgs = field.arguments
+    if (argTypeName === "Float") {
+      return 10.00
+    }
+  }
 
+  const getCustomScalarValue = (argTypeName: string) => {
+    if (argTypeName === "Decimal") {
+      return "10.00"
+    }
 
-      const argTypes = allArgs?.map((arg, index) => {
-        const varName = `Mutation__${field.name.value}__${arg.name.value}`
-        const typeForField = schema.getType(getTypeName(arg.type));
+    if (argTypeName === "URL") {
+      return "https://google.com"
+    }
 
-        if (index === 0) {
-          console.log("getTypeName", getTypeName(arg.type))
-          console.log('arg', arg)
-          console.log('typeForArg', typeForField)
+    return "todo: custom scalar value"
+  }
+
+  const getEnumTypeValue = (argTypeName: string) => {
+    const lookup = graphqlData as any;
+
+    if (argTypeName === 'CurrencyCode') {
+      return graphqlData.CurrencyCode.Usd
+    }
+
+    const value = Object.keys(lookup[argTypeName])[0]
+    if (value) {
+      return value
+    } else {
+      throw new Error("can't find enum to seed")
+    }
+  }
+
+  const getNestedObjectValues = (node: InputObjectTypeDefinitionNode, schema: GraphQLSchema, object?: {}) => {
+    const output: { [key: string]: any } = {}
+    const fields = node.fields
+
+    fields?.forEach(field => {
+      const fieldTypeName = getTypeName(field.type);
+      const fieldTyping = schema.getType(fieldTypeName);
+      const nextNode = fieldTyping?.astNode
+
+      if (!nextNode) {
+        output[field.name.value] = getScalarValue(fieldTypeName)
+      }
+
+      if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
+        output[field.name.value] = getCustomScalarValue(fieldTypeName)
+      }
+
+      if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
+        output[field.name.value] = getEnumTypeValue(fieldTypeName)
+      }
+
+      if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
+        // add fields and recurse
+      }
+    })
+
+    return output
+  }
+
+  const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
+      const mutationArgs = mutation.arguments
+      const output: { [key: string]: any } = {}
+
+      mutationArgs?.forEach(argument => {
+        console.log({argument})
+        const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
+        const argTypeName = getTypeName(argument.type);
+        const fieldTyping = schema.getType(argTypeName);
+
+        const nextNode = fieldTyping?.astNode
+
+        if (!nextNode) {
+          output[varName] = getScalarValue(argTypeName)
         }
 
-        if (typeForField?.name === "String") {
-          variables[varName] = "Placeholder"
-        }
-        if (typeForField?.name === "Boolean") {
-          variables[varName] = true
-        }
-        if (typeForField?.name === "ID") {
-          variables[varName] = "Placeholder ID"
+        if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
+          output[varName] = getCustomScalarValue(argTypeName)
         }
 
-        if (typeForField?.name === "Int") {
-          variables[varName] = 1
+        if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
+          output[varName] = getNestedObjectValues(nextNode, schema)
         }
 
-        if (typeForField?.name === "Float") {
-          variables[varName] = 0.5
+        if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
+          output[varName] = getEnumTypeValue(argTypeName)
         }
-
-        return typeForField
       })
 
-      console.log({variables})
-
-
-
-
-      // const fieldTypeName = getTypeName(field.type)
-      // const typeForFieldReturnValue = schema.getType(fieldTypeName).astNode
-
-
-      // console.log(field.name.value + ": " + field.description?.value)
-      // console.log("args", allArgs)
-      // console.log("arg types", argTypes)
-      // console.log('type name?', fieldTypeName)
-      // console.log('typeForFieldReturnValue', typeForFieldReturnValue)
+      console.log({output})
   }
 
   export function generateMutations(
@@ -1246,9 +1297,8 @@ import {
     }
 
     const mutationRoot = schema.getMutationType()!.astNode!
-
     // iterate through all the fields and product a document + variable set for each
-    generateValuesForField(mutationRoot.fields![0], schema)
+    generateArgsForMutation(mutationRoot.fields![1], schema)
     mutationRoot.fields?.map(field => {
     })
 
