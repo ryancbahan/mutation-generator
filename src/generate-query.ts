@@ -1262,26 +1262,35 @@ import {
       const output: { [key: string]: any } = {}
 
       mutationArgs?.forEach(argument => {
-        const varName = argument.name.value
+        const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
         const argTypeName = getTypeName(argument.type);
         const fieldTyping = schema.getType(argTypeName);
-
         const nextNode = fieldTyping?.astNode
+        const isList = isListType(argument.type)
+
+        if (isList && !nextNode) {
+          output[varName] = [getScalarValue(argTypeName)]
+          return
+        }
 
         if (!nextNode) {
           output[varName] = getScalarValue(argTypeName)
+          return
         }
 
         if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
           output[varName] = getCustomScalarValue(argTypeName)
+          return
         }
 
         if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
           output[varName] = getNestedObjectValues(nextNode, schema)
+          return
         }
 
         if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
           output[varName] = getEnumTypeValue(argTypeName)
+          return
         }
       })
 
@@ -1302,12 +1311,7 @@ import {
     }
 
     const mutationRoot = schema.getMutationType()!.astNode!
-    // iterate through all the fields and product a document + variable set for each
-    generateArgsForMutation(mutationRoot.fields![7], schema)
-    mutationRoot.fields?.map(field => {
-    })
-
-
+    generateArgsForMutation(mutationRoot.fields![5], schema)
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
     //   schema,
