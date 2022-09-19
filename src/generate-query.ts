@@ -163,6 +163,8 @@ import {
       variableValues
     } = getSelectionSetAndVars(schema, node, config)
 
+    console.log({selectionSet})
+
     // console.log({selectionSet})
     // console.log({variableDefinitionsMap})
 
@@ -843,6 +845,7 @@ import {
   } {
     // console.log('top of getselection', node)
     let selections: SelectionNode[] = []
+    console.log({selections})
     let variableDefinitionsMap: {
       [variableName: string]: VariableDefinitionNode
     } = {}
@@ -898,6 +901,8 @@ import {
           ...avs.variableDefinitionsMap
         }
         variableValues = { ...variableValues, ...avs.variableValues }
+
+        // console.log('args', avs.args)
 
         selections.push({
           kind: Kind.FIELD,
@@ -1262,6 +1267,21 @@ import {
   const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
       const mutationArgs = mutation.arguments
       const output: { [key: string]: any } = {}
+      const selections = []
+      const selectionSet: SelectionSetNode = {
+        kind: Kind.SELECTION_SET,
+        selections: []
+      }
+
+      selections.push({
+        kind: Kind.FIELD,
+        name: getName(mutation.name.value),
+        selectionSet,
+        arguments: []
+      })
+
+      console.log({mutation})
+      console.log({selections})
 
       mutationArgs?.forEach(argument => {
         const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
@@ -1270,18 +1290,37 @@ import {
         const nextNode = fieldTyping?.astNode
         const isList = isListType(argument.type)
 
+        const selection: FieldDefinitionNode = {
+          kind: Kind.FIELD,
+          name: getName(argument.name.value),
+        }
+
+
+        console.log("")
+        console.log({argument})
+        console.log({argTypeName})
+        console.log({fieldTyping})
+        console.log({selection})
+        console.log("")
+
         if (isList && !nextNode) {
+          selection.arguments = []
           output[varName] = [getScalarValue(argTypeName)]
+          selectionSet.selections.push(selection)
           return
         }
 
         if (!nextNode) {
+          selection.arguments = []
           output[varName] = getScalarValue(argTypeName)
+          selectionSet.selections.push(selection)
           return
         }
 
         if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
+          selection.arguments = []
           output[varName] = getCustomScalarValue(argTypeName)
+          selectionSet.selections.push(selection)
           return
         }
 
@@ -1291,6 +1330,8 @@ import {
         }
 
         if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
+          selection.arguments = []
+          selectionSet.selections.push(selection)
           output[varName] = getEnumTypeValue(argTypeName)
           return
         }
@@ -1313,19 +1354,23 @@ import {
     }
 
     const mutationRoot = schema.getMutationType()!.astNode!
-    const outputs = mutationRoot.fields?.map(field => {
-      const args = generateArgsForMutation(field, schema)
-      const mutationDocument = {
-        kind: Kind.OPERATION_DEFINITION,
-        operation: 'mutation',
-        // selectionSet,
-        // variableDefinitions: Object.values(variableDefinitionsMap),
-        loc,
-        name: getName(field.name.value)
-      }
+    // const outputs = mutationRoot.fields?.map(field => {
+    //   const args = generateArgsForMutation(field, schema)
+    //   const mutationDocument = {
+    //     kind: Kind.OPERATION_DEFINITION,
+    //     operation: 'mutation',
+    //     // selectionSet,
+    //     // variableDefinitions: Object.values(variableDefinitionsMap),
+    //     loc,
+    //     name: getName(field.name.value)
+    //   }
 
-      return {mutationDocument, args}
-    });
+    //   return {mutationDocument, args}
+    // });
+
+    // console.log({outputs})
+
+    console.log(generateArgsForMutation(mutationRoot?.fields[0], schema))
 
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(

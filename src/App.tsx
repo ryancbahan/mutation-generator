@@ -26,8 +26,8 @@ function App() {
     configuration
   );
 
-  // console.log('printed', print(mutationDocument))
-  // console.log({mutationDocument})
+  // console.log('printed', print(foo.mutationDocument))
+  // console.log(foo.mutationDocument)
 
 
   return (

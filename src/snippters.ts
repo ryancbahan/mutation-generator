@@ -1,3 +1,4 @@
+// creating selection
 if (selectionNode.kind === Kind.FIELD) {
     let fieldName = selectionNode.name.value
     if (fieldName in aliasIndexes) {
@@ -16,6 +17,8 @@ if (selectionNode.kind === Kind.FIELD) {
     }
   }
 
+  //selection output
+
   {
     "kind": "Field",
     "name": {
@@ -25,12 +28,16 @@ if (selectionNode.kind === Kind.FIELD) {
     "arguments": []
 }
 
+// selection shape
+
 selections.push({
     kind: Kind.FIELD,
     name: getName(field.name.value),
     selectionSet,
     arguments: avs.args
   })
+
+  // full selection set, unprocessed
 
   {
     "kind": "Field",
@@ -162,6 +169,8 @@ selections.push({
         }
     ]
 }
+
+// full selection set, processed
 
   {
     "kind": "SelectionSet",
@@ -297,4 +306,41 @@ selections.push({
             ]
         }
     ]
+}
+
+// arg
+
+{
+    "kind": "Argument",
+    "loc": {
+        "start": 0,
+        "end": 0,
+        "startToken": null,
+        "endToken": null,
+        "source": null
+    },
+    "name": {
+        "kind": "Name",
+        "value": "id"
+    },
+    "value": {
+        "kind": "Variable",
+        "name": {
+            "kind": "Name",
+            "value": "Product__inCollection__id"
+        }
+    }
+}
+
+// selection processing
+{
+selectionSet:
+cleanselections.length > 0
+  ? {
+      kind: Kind.SELECTION_SET,
+      selections: cleanselections
+    }
+  : undefined,
+variableDefinitionsMap,
+variableValues
 }
