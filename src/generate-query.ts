@@ -1236,6 +1236,18 @@ import {
   }
 
   const getNestedObjectValues = (node: InputObjectTypeDefinitionNode, schema: GraphQLSchema, object?: {}) => {
+    const selectionSet: SelectionSetNode = {
+      kind: Kind.SELECTION_SET,
+      selections: []
+    }
+
+    const selection: FieldDefinitionNode = {
+      kind: Kind.FIELD,
+      name: getName(node.name.value),
+      selectionSet,
+      arguments: []
+    }
+
     const output: { [key: string]: any } = {}
     const fields = node.fields
 
@@ -1244,24 +1256,40 @@ import {
       const fieldTyping = schema.getType(fieldTypeName);
       const nextNode = fieldTyping?.astNode
 
+      const innerSelectionSet: SelectionSetNode = {
+        kind: Kind.SELECTION_SET,
+        selections: []
+      }
+
+      const innerSelection: FieldDefinitionNode = {
+        kind: Kind.FIELD,
+        name: getName(field.name.value),
+        selectionSet: innerSelectionSet,
+        arguments: []
+      }
+
       if (!nextNode) {
+        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getScalarValue(fieldTypeName)
       }
 
       if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
+        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getCustomScalarValue(fieldTypeName)
       }
 
       if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
+        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getEnumTypeValue(fieldTypeName)
       }
 
       if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
+        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getNestedObjectValues(nextNode, schema)
       }
     })
 
-    return output
+    return {output, nestedSelectionSet: selection}
   }
 
   const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
@@ -1293,44 +1321,35 @@ import {
         const selection: FieldDefinitionNode = {
           kind: Kind.FIELD,
           name: getName(argument.name.value),
+          arguments: []
         }
 
-
-        console.log("")
-        console.log({argument})
-        console.log({argTypeName})
-        console.log({fieldTyping})
-        console.log({selection})
-        console.log("")
-
         if (isList && !nextNode) {
-          selection.arguments = []
           output[varName] = [getScalarValue(argTypeName)]
           selectionSet.selections.push(selection)
           return
         }
 
         if (!nextNode) {
-          selection.arguments = []
           output[varName] = getScalarValue(argTypeName)
           selectionSet.selections.push(selection)
           return
         }
 
         if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
-          selection.arguments = []
           output[varName] = getCustomScalarValue(argTypeName)
           selectionSet.selections.push(selection)
           return
         }
 
         if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-          output[varName] = getNestedObjectValues(nextNode, schema)
+          const {output, nestedSelectionSet} = getNestedObjectValues(nextNode, schema)
+          output[varName] = output
+          selectionSet.selections.push(nestedSelectionSet)
           return
         }
 
         if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
-          selection.arguments = []
           selectionSet.selections.push(selection)
           output[varName] = getEnumTypeValue(argTypeName)
           return
@@ -1370,7 +1389,7 @@ import {
 
     // console.log({outputs})
 
-    console.log(generateArgsForMutation(mutationRoot?.fields[0], schema))
+    generateArgsForMutation(mutationRoot?.fields[0], schema)
 
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
