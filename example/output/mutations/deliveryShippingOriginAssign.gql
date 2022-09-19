@@ -1,8 +1,0 @@
-mutation deliveryShippingOriginAssign($locationId: ID!){
-    deliveryShippingOriginAssign(locationId: $locationId){
-        userErrors{
-            field
-            message
-        }
-    }
-}

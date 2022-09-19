@@ -163,8 +163,8 @@ import {
       variableValues
     } = getSelectionSetAndVars(schema, node, config)
 
-    console.log({selectionSet})
-    console.log({variableDefinitionsMap})
+    // console.log({selectionSet})
+    // console.log({variableDefinitionsMap})
 
     // Throw error if mutation would be empty
     if (selectionSet.selections.length === 0) {
@@ -843,12 +843,12 @@ import {
   } {
     // console.log('top of getselection', node)
     let selections: SelectionNode[] = []
-    console.log({node})
-    console.log({selections})
     let variableDefinitionsMap: {
       [variableName: string]: VariableDefinitionNode
     } = {}
     let variableValues: { [variableName: string]: any } = {}
+
+    // console.log({selections})
 
     // Abort at leaf nodes:
     if (depth === config.maxDepth) {
@@ -907,7 +907,6 @@ import {
         })
       })
     } else if (node.kind === Kind.INTERFACE_TYPE_DEFINITION) {
-      console.log("interface type def", node)
       let fields = getRandomFields(node.fields, config, schema, depth)
 
       fields.forEach((field) => {
@@ -1041,7 +1040,6 @@ import {
         }
       })
     } else if (node.kind === Kind.UNION_TYPE_DEFINITION) {
-      console.log("union type def", node)
       // Get the named types in the union
       let unionNamedTypes = node.types.map((namedTypeNode) => {
         return schema.getType(namedTypeNode.name.value)
@@ -1317,7 +1315,6 @@ import {
     const mutationRoot = schema.getMutationType()!.astNode!
     const outputs = mutationRoot.fields?.map(field => {
       const args = generateArgsForMutation(field, schema)
-      console.log({args})
       const mutationDocument = {
         kind: Kind.OPERATION_DEFINITION,
         operation: 'mutation',
@@ -1338,13 +1335,13 @@ import {
 
     // const definitions = [mutationDocument]
 
-    return {
-      mutationDocument: getDocumentDefinition(definitions),
-      variableValues,
-      seed: finalConfig.seed,
-      typeCount: finalConfig.typeCount,
-      resolveCount: finalConfig.resolveCount
-    }
+    // return {
+    //   mutationDocument: getDocumentDefinition(definitions),
+    //   variableValues,
+    //   seed: finalConfig.seed,
+    //   typeCount: finalConfig.typeCount,
+    //   resolveCount: finalConfig.resolveCount
+    // }
   }
 
   export function generateRandomQuery(

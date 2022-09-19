@@ -1,8 +1,0 @@
-mutation flowTriggerReceive($body: String!){
-    flowTriggerReceive(body: $body){
-        userErrors{
-            field
-            message
-        }
-    }
-}

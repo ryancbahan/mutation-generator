@@ -1,8 +1,0 @@
-mutation shippingPackageUpdate($id: ID!){
-    shippingPackageUpdate(id: $id){
-        userErrors{
-            field
-            message
-        }
-    }
-}

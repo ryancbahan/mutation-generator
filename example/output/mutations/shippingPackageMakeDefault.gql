@@ -1,8 +1,0 @@
-mutation shippingPackageMakeDefault($id: ID!){
-    shippingPackageMakeDefault(id: $id){
-        userErrors{
-            field
-            message
-        }
-    }
-}

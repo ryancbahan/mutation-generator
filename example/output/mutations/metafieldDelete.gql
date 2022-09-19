@@ -1,9 +1,0 @@
-mutation metafieldDelete($input: MetafieldDeleteInput!){
-    metafieldDelete(input: $input){
-        deletedId
-        userErrors{
-            field
-            message
-        }
-    }
-}

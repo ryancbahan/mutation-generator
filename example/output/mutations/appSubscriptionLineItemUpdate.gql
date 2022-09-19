@@ -7,7 +7,46 @@ mutation appSubscriptionLineItemUpdate($first: Int, $after: String, $last: Int, 
             lineItems{
                 id
                 plan{
-                    pricingDetails
+                    pricingDetails{
+                        ... on AppRecurringPricing {
+                            discount{
+                                durationLimitInIntervals
+                                priceAfterDiscount{
+                                    amount
+                                    currencyCode
+                                }
+                                remainingDurationInIntervals
+                                value{
+                                    ... on AppSubscriptionDiscountAmount {
+                                        amount{
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    ... on AppSubscriptionDiscountPercentage {
+                                        percentage
+                                    }
+                                }
+                            }
+                            interval
+                            price{
+                                amount
+                                currencyCode
+                            }
+                        }
+                        ... on AppUsagePricing {
+                            balanceUsed{
+                                amount
+                                currencyCode
+                            }
+                            cappedAmount{
+                                amount
+                                currencyCode
+                            }
+                            interval
+                            terms
+                        }
+                    }
                 }
                 usageRecords(first: $first1, after: $after1, last: $last1, before: $before1, reverse: $reverse1, sortKey: $sortKey1){
                     edges{
@@ -23,7 +62,46 @@ mutation appSubscriptionLineItemUpdate($first: Int, $after: String, $last: Int, 
                             subscriptionLineItem{
                                 id
                                 plan{
-                                    pricingDetails
+                                    pricingDetails{
+                                        ... on AppRecurringPricing {
+                                            discount{
+                                                durationLimitInIntervals
+                                                priceAfterDiscount{
+                                                    amount
+                                                    currencyCode
+                                                }
+                                                remainingDurationInIntervals
+                                                value{
+                                                    ... on AppSubscriptionDiscountAmount {
+                                                        amount{
+                                                            amount
+                                                            currencyCode
+                                                        }
+                                                    }
+                                                    ... on AppSubscriptionDiscountPercentage {
+                                                        percentage
+                                                    }
+                                                }
+                                            }
+                                            interval
+                                            price{
+                                                amount
+                                                currencyCode
+                                            }
+                                        }
+                                        ... on AppUsagePricing {
+                                            balanceUsed{
+                                                amount
+                                                currencyCode
+                                            }
+                                            cappedAmount{
+                                                amount
+                                                currencyCode
+                                            }
+                                            interval
+                                            terms
+                                        }
+                                    }
                                 }
                                 usageRecords(first: $first, after: $after, last: $last, before: $before, reverse: $reverse, sortKey: $sortKey){
                                     nodes{

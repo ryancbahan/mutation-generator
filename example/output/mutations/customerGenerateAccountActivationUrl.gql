@@ -1,9 +1,0 @@
-mutation customerGenerateAccountActivationUrl($customerId: ID!){
-    customerGenerateAccountActivationUrl(customerId: $customerId){
-        accountActivationUrl
-        userErrors{
-            field
-            message
-        }
-    }
-}

@@ -1,9 +1,0 @@
-mutation shopLocaleDisable($locale: String!){
-    shopLocaleDisable(locale: $locale){
-        locale
-        userErrors{
-            field
-            message
-        }
-    }
-}

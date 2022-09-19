@@ -1,9 +1,0 @@
-mutation privateMetafieldDelete($input: PrivateMetafieldDeleteInput!){
-    privateMetafieldDelete(input: $input){
-        deletedPrivateMetafieldId
-        userErrors{
-            field
-            message
-        }
-    }
-}
