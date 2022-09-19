@@ -163,7 +163,7 @@ import {
       variableValues
     } = getSelectionSetAndVars(schema, node, config)
 
-    console.log({selectionSet})
+    // console.log({selectionSet})
 
     // console.log({selectionSet})
     // console.log({variableDefinitionsMap})
@@ -1236,6 +1236,7 @@ import {
   }
 
   const getNestedObjectValues = (node: InputObjectTypeDefinitionNode, schema: GraphQLSchema, object?: {}) => {
+    const test = []
     const selectionSet: SelectionSetNode = {
       kind: Kind.SELECTION_SET,
       selections: []
@@ -1251,7 +1252,11 @@ import {
     const output: { [key: string]: any } = {}
     const fields = node.fields
 
+    // console.log('top level function run', {node})
+    // console.log('top level selections', selectionSet.selections)
+
     fields?.forEach(field => {
+      test.push(field)
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
       const nextNode = fieldTyping?.astNode
@@ -1268,28 +1273,36 @@ import {
         arguments: []
       }
 
+      // INNERSELECTIONSET SELECTIONS NEVER GET PUSHED INTO
+      // console.log("")
+      // console.log({field})
+      // console.log({innerSelection})
+      // console.log("")
+
+      // console.log({innerSelection})
+      // console.log({selection})
+
       if (!nextNode) {
-        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getScalarValue(fieldTypeName)
       }
 
       if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
-        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getCustomScalarValue(fieldTypeName)
       }
 
       if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
-        selectionSet.selections.push(innerSelection)
         output[field.name.value] = getEnumTypeValue(fieldTypeName)
       }
 
       if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-        selectionSet.selections.push(innerSelection)
-        output[field.name.value] = getNestedObjectValues(nextNode, schema)
+        const {output: nextOutput} = getNestedObjectValues(nextNode, schema)
+        output[field.name.value] = nextOutput
       }
+
+      selectionSet.selections.push(innerSelection)
     })
 
-    return {output, nestedSelectionSet: selection}
+    return {output}
   }
 
   const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
@@ -1307,9 +1320,6 @@ import {
         selectionSet,
         arguments: []
       })
-
-      console.log({mutation})
-      console.log({selections})
 
       mutationArgs?.forEach(argument => {
         const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
@@ -1343,9 +1353,9 @@ import {
         }
 
         if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-          const {output, nestedSelectionSet} = getNestedObjectValues(nextNode, schema)
-          output[varName] = output
-          selectionSet.selections.push(nestedSelectionSet)
+          const {output: nextOutput} = getNestedObjectValues(nextNode, schema)
+          output[varName] = nextOutput
+          // selectionSet.selections.push(nestedSelectionSet)
           return
         }
 
@@ -1356,7 +1366,7 @@ import {
         }
       })
 
-      return output
+      return {output, selections}
   }
 
   export function generateMutations(
@@ -1389,7 +1399,9 @@ import {
 
     // console.log({outputs})
 
-    generateArgsForMutation(mutationRoot?.fields[0], schema)
+    const {output, selections} = generateArgsForMutation(mutationRoot?.fields[5], schema)
+
+    console.log({output, selections})
 
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
