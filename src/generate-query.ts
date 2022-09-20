@@ -23,7 +23,8 @@ import {
     ListValueNode,
     BooleanValueNode,
     InputObjectTypeDefinitionNode,
-    OperationTypeNode
+    OperationTypeNode,
+    ObjectTypeDefinitionNode
   } from 'graphql'
 
   import * as graphqlData from './generated/graphql'
@@ -1235,8 +1236,7 @@ import {
     }
   }
 
-  const getNestedObjectValues = (node: InputObjectTypeDefinitionNode, schema: GraphQLSchema, nextSelectionSet?: SelectionSetNode) => {
-    const test = []
+  const getNestedObjectValues = (node: InputObjectTypeDefinitionNode | ObjectTypeDefinitionNode, schema: GraphQLSchema, nextSelectionSet?: SelectionSetNode) => {
     const selectionSet: SelectionSetNode = {
       kind: Kind.SELECTION_SET,
       selections: []
@@ -1256,8 +1256,6 @@ import {
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
       const nextNode = fieldTyping?.astNode
-
-      console.log({fieldTypeName, fieldTyping, nextNode})
 
       const innerSelectionSet: SelectionSetNode = {
         kind: Kind.SELECTION_SET,
@@ -1295,12 +1293,63 @@ import {
     return {output, selectionSet}
   }
 
-  const generateFieldsAndVarsForMutation = () => {}
+  const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
+    const mutationTypeName = getTypeName(mutation.type)
+    const mutationFieldTyping = schema.getType(mutationTypeName)
+    const fields = mutationFieldTyping?.astNode?.fields
+
+    const selections = []
+    const selectionSet: SelectionSetNode = {
+      kind: Kind.SELECTION_SET,
+      selections: []
+    }
+
+    selections.push({
+      kind: Kind.FIELD,
+      name: getName(mutation.name.value),
+      selectionSet,
+      arguments: []
+    })
+
+    console.log({mutationFieldTyping})
+
+    fields?.forEach(field => {
+      const fieldTypeName = getTypeName(field.type);
+      const fieldTyping = schema.getType(fieldTypeName);
+      const nextNode = fieldTyping?.astNode
+
+      // console.log({fieldTyping})
+      // console.log('next node', nextNode)
+
+      const selection: FieldDefinitionNode = {
+        kind: Kind.FIELD,
+        name: getName(field.name.value),
+        arguments: []
+      }
+
+      if (!nextNode || nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
+        selectionSet.selections.push(selection)
+        return
+      }
+
+      if (nextNode?.kind === Kind.OBJECT_TYPE_DEFINITION) {
+        selectionSet.selections.push(selection)
+        console.log({selection, selectionSet})
+        const {selectionSet: nextSelectionSet} = getNestedObjectValues(nextNode, schema)
+        // console.log({selection, nextSelectionSet})
+      }
+
+
+    })
+
+    console.log({selections})
+
+    return selections
+
+  }
 
   const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
       const mutationArgs = mutation.arguments
-      const mutationTypeName = getTypeName(mutation.type)
-      const mutationFieldTyping = schema.getType(mutationTypeName)
 
       const output: { [key: string]: any } = {}
       const selections = []
@@ -1308,8 +1357,6 @@ import {
         kind: Kind.SELECTION_SET,
         selections: []
       }
-
-      console.log("ast node", mutationFieldTyping?.astNode)
 
       selections.push({
         kind: Kind.FIELD,
@@ -1351,9 +1398,7 @@ import {
 
         if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
           const {output: nextOutput, selectionSet: nextSelectionSet} = getNestedObjectValues(nextNode, schema)
-          console.log({nextSelectionSet})
           output[varName] = nextOutput
-          // selectionSet.selections.push(nestedSelectionSet)
           return
         }
 
@@ -1398,8 +1443,9 @@ import {
     // console.log({outputs})
 
     const {output, selections} = generateArgsForMutation(mutationRoot?.fields[5], schema)
+    generateFieldsAndVarsForMutation(mutationRoot?.fields[5], schema)
 
-    console.log({output, selections})
+    // console.log({selections})
 
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(

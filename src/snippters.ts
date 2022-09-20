@@ -1,3 +1,8 @@
+// all field types
+
+'ScalarTypeDefinitionNode | EnumTypeDefinitionNode | InputObjectTypeDefinitionNode | ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode | UnionTypeDefinitionNode'.
+
+
 // creating selection
 if (selectionNode.kind === Kind.FIELD) {
     let fieldName = selectionNode.name.value
