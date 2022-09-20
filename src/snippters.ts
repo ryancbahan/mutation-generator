@@ -351,6 +351,30 @@ variableValues
 }
 
 
+function getVariableDefinition(
+    name: string,
+    type: TypeNode
+  ): VariableDefinitionNode {
+    return {
+      kind: Kind.VARIABLE_DEFINITION,
+      type: type,
+      variable: {
+        kind: Kind.VARIABLE,
+        name: getName(name)
+      }
+    }
+  }
 
+  function getVariable(argName: string, varName: string): ArgumentNode {
+    return {
+      kind: Kind.ARGUMENT,
+      loc,
+      name: getName(argName),
+      value: {
+        kind: Kind.VARIABLE,
+        name: getName(varName)
+      }
+    }
+  }
 
 
