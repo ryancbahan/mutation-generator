@@ -1288,6 +1288,12 @@ import {
         const {output: nextOutput} = getNestedObjectValues(nextNode, schema, innerSelectionSet)
         output[field.name.value] = nextOutput
       }
+
+      // prune empty selection sets
+      // todo: only append if values
+      if (!innerSelection?.selectionSet?.selections?.length) {
+        delete innerSelection.selectionSet
+      }
     })
 
     return {output, selectionSet}
