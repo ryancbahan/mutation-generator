@@ -1299,6 +1299,7 @@ import {
     const fields = mutationFieldTyping?.astNode?.fields
 
     const selections = []
+
     const selectionSet: SelectionSetNode = {
       kind: Kind.SELECTION_SET,
       selections: []
@@ -1311,15 +1312,10 @@ import {
       arguments: []
     })
 
-    console.log({mutationFieldTyping})
-
-    fields?.forEach(field => {
+    fields?.forEach((field: FieldDefinitionNode) => {
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
       const nextNode = fieldTyping?.astNode
-
-      // console.log({fieldTyping})
-      // console.log('next node', nextNode)
 
       const selection: FieldDefinitionNode = {
         kind: Kind.FIELD,
@@ -1327,22 +1323,13 @@ import {
         arguments: []
       }
 
-      if (!nextNode || nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
-        selectionSet.selections.push(selection)
-        return
-      }
+      selectionSet.selections.push(selection)
 
       if (nextNode?.kind === Kind.OBJECT_TYPE_DEFINITION) {
-        selectionSet.selections.push(selection)
-        console.log({selection, selectionSet})
         const {selectionSet: nextSelectionSet} = getNestedObjectValues(nextNode, schema)
-        // console.log({selection, nextSelectionSet})
+        selection.selectionSet = nextSelectionSet
       }
-
-
     })
-
-    console.log({selections})
 
     return selections
 
@@ -1352,18 +1339,6 @@ import {
       const mutationArgs = mutation.arguments
 
       const output: { [key: string]: any } = {}
-      const selections = []
-      const selectionSet: SelectionSetNode = {
-        kind: Kind.SELECTION_SET,
-        selections: []
-      }
-
-      selections.push({
-        kind: Kind.FIELD,
-        name: getName(mutation.name.value),
-        selectionSet,
-        arguments: []
-      })
 
       mutationArgs?.forEach(argument => {
         const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
@@ -1372,44 +1347,34 @@ import {
         const nextNode = fieldTyping?.astNode
         const isList = isListType(argument.type)
 
-        const selection: FieldDefinitionNode = {
-          kind: Kind.FIELD,
-          name: getName(argument.name.value),
-          arguments: []
-        }
-
         if (isList && !nextNode) {
           output[varName] = [getScalarValue(argTypeName)]
-          selectionSet.selections.push(selection)
           return
         }
 
         if (!nextNode) {
           output[varName] = getScalarValue(argTypeName)
-          selectionSet.selections.push(selection)
           return
         }
 
         if (nextNode?.kind === Kind.SCALAR_TYPE_DEFINITION) {
           output[varName] = getCustomScalarValue(argTypeName)
-          selectionSet.selections.push(selection)
           return
         }
 
         if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-          const {output: nextOutput, selectionSet: nextSelectionSet} = getNestedObjectValues(nextNode, schema)
+          const {output: nextOutput} = getNestedObjectValues(nextNode, schema)
           output[varName] = nextOutput
           return
         }
 
         if (nextNode?.kind === Kind.ENUM_TYPE_DEFINITION) {
-          selectionSet.selections.push(selection)
           output[varName] = getEnumTypeValue(argTypeName)
           return
         }
       })
 
-      return {output, selections}
+      return {output}
   }
 
   export function generateMutations(
@@ -1442,10 +1407,10 @@ import {
 
     // console.log({outputs})
 
-    const {output, selections} = generateArgsForMutation(mutationRoot?.fields[5], schema)
-    generateFieldsAndVarsForMutation(mutationRoot?.fields[5], schema)
+    const {output} = generateArgsForMutation(mutationRoot?.fields[5], schema)
+    const selections = generateFieldsAndVarsForMutation(mutationRoot?.fields[5], schema)
 
-    // console.log({selections})
+    console.log({output, selections})
 
 
     // const { mutationDocument, variableValues } = getMutationOperationDefinition(
