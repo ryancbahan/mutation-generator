@@ -5,7 +5,7 @@ import { buildClientSchema, printSchema, Source, buildSchema, IntrospectionQuery
 
 import {
   generateMutations,
-} from "./generate-query";
+} from "./generateMutations";
 
 function App() {
   const builtSchema = buildClientSchema(introspectionQuery as IntrospectionQuery);
@@ -21,13 +21,10 @@ function App() {
     ignoreOptionalArguments: true,
   };
 
-  const foo = generateMutations(
-    validSchema,
-    configuration
-  );
+  const foo = generateMutations(validSchema);
 
-  // console.log('printed', print(foo.mutationDocument))
-  // console.log(foo.mutationDocument)
+  console.log('printed', print(foo.mutationDocument))
+  console.log(foo.variableValues)
 
 
   return (

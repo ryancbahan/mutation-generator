@@ -40,7 +40,7 @@ import {
   isEnumType,
   getRandomEnum,
   getDefaultArgValue
-} from './provide-variables'
+} from './scratch-work-2'
 
 export type Configuration = {
   depthProbability?: number | ((depth: number) => number)
@@ -1347,7 +1347,6 @@ const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema:
   })
 
   return { selections, variableDefinitionsMap }
-
 }
 
 const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
@@ -1422,8 +1421,8 @@ export function generateMutations(
 
   // console.log({outputs})
 
-  const { output: variableValues } = generateArgsForMutation(mutationRoot?.fields[5], schema)
-  const { selections, variableDefinitionsMap } = generateFieldsAndVarsForMutation(mutationRoot?.fields[5], schema)
+  const { output: variableValues } = generateArgsForMutation(mutationRoot?.fields[1], schema)
+  const { selections, variableDefinitionsMap } = generateFieldsAndVarsForMutation(mutationRoot?.fields[1], schema)
 
   const selectionSet = {
     kind: Kind.SELECTION_SET,
@@ -1436,7 +1435,7 @@ export function generateMutations(
     selectionSet,
     variableDefinitions: Object.values(variableDefinitionsMap),
     loc,
-    name: getName(mutationRoot!.fields![5]?.name?.value)
+    name: getName(mutationRoot!.fields![1]?.name?.value)
   }
 
   const definitions = [document]
@@ -1447,23 +1446,13 @@ export function generateMutations(
   //   finalConfig
   // )
 
-  // console.log({ document })
-  // console.log({ bar })
-
   // const definitions1 = [bar]
   // const mutationDocument1 = getDocumentDefinition(definitions1)
-  console.log({variableValues})
-  console.log(print(mutationDocument))
 
-  // console.log({definitions})
-  // console.log({definitions1})
-  // console.log({mutationDocument})
-  // console.log({mutationDocument1})
-
-  // return {
-  //   mutationDocument: getDocumentDefinition(definitions),
-  //   variableValues,
-  // }
+  return {
+    mutationDocument,
+    variableValues,
+  }
 }
 
 export function generateRandomQuery(

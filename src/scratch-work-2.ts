@@ -9,7 +9,7 @@ import {
     Configuration,
     considerArgument,
     InternalConfiguration
-  } from './generate-query'
+  } from './scratch-work'
 
   type Variables = { [varName: string]: any }
 
