@@ -11,7 +11,8 @@ import {
     InputObjectTypeDefinitionNode,
     ObjectTypeDefinitionNode,
     ArgumentNode,
-    VariableDefinitionNode
+    VariableDefinitionNode,
+    DefinitionNode
 } from "graphql"
 import * as graphqlData from './generated/graphql'
 import * as graphqlDataTypes from './generated/graphql'
@@ -32,7 +33,7 @@ const loc: Location = {
     source: null
 }
 
-function getDocumentDefinition(definitions): DocumentNode {
+function getDocumentDefinition(definitions: DefinitionNode[]): DocumentNode {
     return {
         kind: Kind.DOCUMENT,
         definitions,
@@ -78,10 +79,6 @@ export function getTypeName(type: TypeNode): string {
     }
 }
 
-/**
-* Given a type node, determine if it is some kind of list node, whether it be
-* non-null list or nested list, or any combination of which
-*/
 function isListType(type: TypeNode): boolean {
     if (type.kind === 'NamedType') {
         return false
