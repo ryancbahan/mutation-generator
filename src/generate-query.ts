@@ -1253,10 +1253,11 @@ import {
     const fields = node.fields
 
     fields?.forEach(field => {
-      test.push(field)
       const fieldTypeName = getTypeName(field.type);
       const fieldTyping = schema.getType(fieldTypeName);
       const nextNode = fieldTyping?.astNode
+
+      console.log({fieldTypeName, fieldTyping, nextNode})
 
       const innerSelectionSet: SelectionSetNode = {
         kind: Kind.SELECTION_SET,
@@ -1294,14 +1295,21 @@ import {
     return {output, selectionSet}
   }
 
+  const generateFieldsAndVarsForMutation = () => {}
+
   const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
       const mutationArgs = mutation.arguments
+      const mutationTypeName = getTypeName(mutation.type)
+      const mutationFieldTyping = schema.getType(mutationTypeName)
+
       const output: { [key: string]: any } = {}
       const selections = []
       const selectionSet: SelectionSetNode = {
         kind: Kind.SELECTION_SET,
         selections: []
       }
+
+      console.log("ast node", mutationFieldTyping?.astNode)
 
       selections.push({
         kind: Kind.FIELD,
