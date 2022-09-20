@@ -167,7 +167,7 @@ function getMutationOperationDefinition(
   // console.log({selectionSet})
 
   // console.log({selectionSet})
-  // console.log({variableDefinitionsMap})
+  console.log({ variableDefinitionsMap })
 
   // Throw error if mutation would be empty
   if (selectionSet.selections.length === 0) {
@@ -846,7 +846,7 @@ function getSelectionSetAndVars(
 } {
   // console.log('top of getselection', node)
   let selections: SelectionNode[] = []
-  console.log({ selections })
+  // console.log({ selections })
   let variableDefinitionsMap: {
     [variableName: string]: VariableDefinitionNode
   } = {}
@@ -1305,12 +1305,15 @@ const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema:
   const fields = mutationFieldTyping?.astNode?.fields
   const selections = []
   const args: ArgumentNode[] = []
+  const variableDefinitionsMap: {
+    [varName: string]: VariableDefinitionNode
+  } = {}
 
   mutation?.arguments?.forEach(arg => {
     const varName = `Mutation__${mutation.name.value}__${arg.name.value}`
+    variableDefinitionsMap[varName] = getVariableDefinition(varName, arg.type)
     args.push(getVariable(arg.name.value, varName))
   })
-
 
   const selectionSet: SelectionSetNode = {
     kind: Kind.SELECTION_SET,
@@ -1343,7 +1346,7 @@ const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema:
     }
   })
 
-  return selections
+  return { selections, variableDefinitionsMap }
 
 }
 
@@ -1419,18 +1422,43 @@ export function generateMutations(
 
   // console.log({outputs})
 
-  const { output } = generateArgsForMutation(mutationRoot?.fields[5], schema)
-  const selections = generateFieldsAndVarsForMutation(mutationRoot?.fields[5], schema)
+  const { output: variableValues } = generateArgsForMutation(mutationRoot?.fields[5], schema)
+  const { selections, variableDefinitionsMap } = generateFieldsAndVarsForMutation(mutationRoot?.fields[5], schema)
 
-  console.log({ output, selections })
+  const selectionSet = {
+    kind: Kind.SELECTION_SET,
+    selections
+  }
 
+  const document = {
+    kind: Kind.OPERATION_DEFINITION,
+    operation: 'mutation' as OperationTypeNode,
+    selectionSet,
+    variableDefinitions: Object.values(variableDefinitionsMap),
+    loc,
+    name: getName(mutationRoot!.fields![5]?.name?.value)
+  }
 
-  // const { mutationDocument, variableValues } = getMutationOperationDefinition(
+  const definitions = [document]
+  const mutationDocument = getDocumentDefinition(definitions)
+
+  // const { mutationDocument: bar, variableValues: baz } = getMutationOperationDefinition(
   //   schema,
   //   finalConfig
   // )
 
-  // const definitions = [mutationDocument]
+  // console.log({ document })
+  // console.log({ bar })
+
+  // const definitions1 = [bar]
+  // const mutationDocument1 = getDocumentDefinition(definitions1)
+  console.log({variableValues})
+  console.log(print(mutationDocument))
+
+  // console.log({definitions})
+  // console.log({definitions1})
+  // console.log({mutationDocument})
+  // console.log({mutationDocument1})
 
   // return {
   //   mutationDocument: getDocumentDefinition(definitions),

@@ -377,4 +377,126 @@ function getVariableDefinition(
     }
   }
 
+  // variable definitions map shape
+
+  {
+    "variableDefinitionsMap": {
+        "Mutation__fulfillmentServiceUpdate__id": {
+            "kind": "VariableDefinition",
+            "type": {
+                "kind": "NonNullType",
+                "type": {
+                    "kind": "NamedType",
+                    "name": {
+                        "kind": "Name",
+                        "value": "ID",
+                        "loc": {
+                            "start": 499662,
+                            "end": 499664
+                        }
+                    },
+                    "loc": {
+                        "start": 499662,
+                        "end": 499664
+                    }
+                },
+                "loc": {
+                    "start": 499662,
+                    "end": 499665
+                }
+            },
+            "variable": {
+                "kind": "Variable",
+                "name": {
+                    "kind": "Name",
+                    "value": "Mutation__fulfillmentServiceUpdate__id"
+                }
+            }
+        }
+    }
+}
+
+{
+    "variableDefinitionsMap": {
+        "Mutation__productVariantDetachMedia__productId": {
+            "kind": "VariableDefinition",
+            "type": {
+                "kind": "NonNullType",
+                "type": {
+                    "kind": "NamedType",
+                    "name": {
+                        "kind": "Name",
+                        "value": "ID",
+                        "loc": {
+                            "start": 526764,
+                            "end": 526766
+                        }
+                    },
+                    "loc": {
+                        "start": 526764,
+                        "end": 526766
+                    }
+                },
+                "loc": {
+                    "start": 526764,
+                    "end": 526767
+                }
+            },
+            "variable": {
+                "kind": "Variable",
+                "name": {
+                    "kind": "Name",
+                    "value": "Mutation__productVariantDetachMedia__productId"
+                }
+            }
+        },
+        "Mutation__productVariantDetachMedia__variantMedia": {
+            "kind": "VariableDefinition",
+            "type": {
+                "kind": "NonNullType",
+                "type": {
+                    "kind": "ListType",
+                    "type": {
+                        "kind": "NonNullType",
+                        "type": {
+                            "kind": "NamedType",
+                            "name": {
+                                "kind": "Name",
+                                "value": "ProductVariantDetachMediaInput",
+                                "loc": {
+                                    "start": 526869,
+                                    "end": 526899
+                                }
+                            },
+                            "loc": {
+                                "start": 526869,
+                                "end": 526899
+                            }
+                        },
+                        "loc": {
+                            "start": 526869,
+                            "end": 526900
+                        }
+                    },
+                    "loc": {
+                        "start": 526868,
+                        "end": 526901
+                    }
+                },
+                "loc": {
+                    "start": 526868,
+                    "end": 526902
+                }
+            },
+            "variable": {
+                "kind": "Variable",
+                "name": {
+                    "kind": "Name",
+                    "value": "Mutation__productVariantDetachMedia__variantMedia"
+                }
+            }
+        }
+    }
+}
+
 
