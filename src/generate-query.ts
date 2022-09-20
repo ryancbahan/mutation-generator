@@ -1235,7 +1235,7 @@ import {
     }
   }
 
-  const getNestedObjectValues = (node: InputObjectTypeDefinitionNode, schema: GraphQLSchema, object?: {}) => {
+  const getNestedObjectValues = (node: InputObjectTypeDefinitionNode, schema: GraphQLSchema, nextSelectionSet?: SelectionSetNode) => {
     const test = []
     const selectionSet: SelectionSetNode = {
       kind: Kind.SELECTION_SET,
@@ -1251,9 +1251,6 @@ import {
 
     const output: { [key: string]: any } = {}
     const fields = node.fields
-
-    // console.log('top level function run', {node})
-    // console.log('top level selections', selectionSet.selections)
 
     fields?.forEach(field => {
       test.push(field)
@@ -1273,14 +1270,8 @@ import {
         arguments: []
       }
 
-      // INNERSELECTIONSET SELECTIONS NEVER GET PUSHED INTO
-      // console.log("")
-      // console.log({field})
-      // console.log({innerSelection})
-      // console.log("")
-
-      // console.log({innerSelection})
-      // console.log({selection})
+      const pushTo = nextSelectionSet? nextSelectionSet : selectionSet
+      pushTo.selections.push(innerSelection)
 
       if (!nextNode) {
         output[field.name.value] = getScalarValue(fieldTypeName)
@@ -1295,14 +1286,12 @@ import {
       }
 
       if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-        const {output: nextOutput} = getNestedObjectValues(nextNode, schema)
+        const {output: nextOutput} = getNestedObjectValues(nextNode, schema, innerSelectionSet)
         output[field.name.value] = nextOutput
       }
-
-      selectionSet.selections.push(innerSelection)
     })
 
-    return {output}
+    return {output, selectionSet}
   }
 
   const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
@@ -1353,7 +1342,8 @@ import {
         }
 
         if (nextNode?.kind === Kind.INPUT_OBJECT_TYPE_DEFINITION) {
-          const {output: nextOutput} = getNestedObjectValues(nextNode, schema)
+          const {output: nextOutput, selectionSet: nextSelectionSet} = getNestedObjectValues(nextNode, schema)
+          console.log({nextSelectionSet})
           output[varName] = nextOutput
           // selectionSet.selections.push(nestedSelectionSet)
           return
