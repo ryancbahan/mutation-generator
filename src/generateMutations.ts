@@ -302,6 +302,9 @@ export function generateMutations(
 ) {
 
     const mutationRoot = schema.getMutationType()!.astNode!
+
+    // just use one mutation at a time for now because seeing all 254 in dev is a lot
+
     // const outputs = mutationRoot.fields?.map(field => {
     //   const args = generateArgsForMutation(field, schema)
     //   const mutationDocument = {
