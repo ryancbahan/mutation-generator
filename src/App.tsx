@@ -51,7 +51,7 @@ function App() {
   }
 
   function renderItem(item: any) {
-    const { mutationInfo } = item
+    const { mutationInfo, mutationDocument } = item
     const { args } = mutationInfo
 
     return (
@@ -73,7 +73,7 @@ function App() {
                 </Heading>
               </Stack.Item>
               {args.map((arg: any) => renderArg(arg))}
-              <Link>{"Expand ->"}</Link>
+              <code>{print(mutationDocument)}</code>
             </Stack>
           </Card.Section>
           <Card.Section>
