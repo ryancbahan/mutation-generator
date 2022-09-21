@@ -305,6 +305,11 @@ export function generateMutations(
     const mutationRoot = schema.getMutationType()!.astNode!
 
     const outputs = mutationRoot.fields?.map(field => {
+        const mutationInfo = {
+            name: field.name.value,
+            description: field.description,
+            args: field.arguments
+        }
         const { output: variableValues } = generateArgsForMutation(field, schema)
         const { selections, variableDefinitionsMap } = generateFieldsAndVarsForMutation(field, schema)
 
@@ -326,6 +331,7 @@ export function generateMutations(
         const mutationDocument = getDocumentDefinition(definitions)
 
         return {
+            mutationInfo,
             mutationDocument,
             variableValues,
         }

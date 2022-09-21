@@ -9,11 +9,13 @@ import {
   ResourceItem,
   Card,
   Stack,
-  Heading,
   Button,
   Filters,
   TextField,
-  Frame
+  Frame,
+  Heading,
+  TextStyle,
+  TextContainer
 } from '@shopify/polaris';
 
 import {
@@ -27,33 +29,34 @@ function App() {
   const source = new Source(schemaLanguage);
   const validSchema = buildSchema(source, { assumeValidSDL: true });
 
-  const outputs = generateMutations(validSchema);
+  const mutationList: any[] = generateMutations(validSchema)!;
 
-  console.log({outputs})
+  function renderItem(item: any) {
+    const { mutationInfo } = item
 
-  function renderItem({ name, description, args }: {name: string, description: string, args: any[]}) {
     return (
-      <ResourceItem id={name} onClick={() => { }}>
+      <ResourceItem id={Math.random().toString()} onClick={() => { }}>
         <Card>
           <Card.Section>
-            <Stack vertical spacing="loose">
+            <Stack vertical>
               <Stack.Item>
-                <Heading>{name}</Heading>
-                <p>{description}</p>
+                <TextContainer>
+                  <Heading>
+                    {mutationInfo.name}
+                  </Heading>
+                  <p>{mutationInfo.description.value}</p>
+                </TextContainer>
               </Stack.Item>
               <Stack.Item>
-                <Heading>Arguments</Heading>
-                {/* {args?.map((arg) => renderArgs(arg))} */}
+                <Heading element='h3'>
+                  Arguments
+                </Heading>
               </Stack.Item>
-              <Stack>
-                <Button primary>Run mutation once</Button>
-                <Button>Run mutation five times</Button>
-              </Stack>
             </Stack>
           </Card.Section>
         </Card>
       </ResourceItem>
-    );
+    )
   }
 
   const filters = [
@@ -88,7 +91,7 @@ function App() {
     plural: "available mutations",
   };
 
-  const filteredList: any[] = []
+  const filteredItems = mutationList.filter(item => item.mutationInfo.name.includes(queryValue))
 
   return (
     <AppProvider i18n={enTranslations}>
@@ -96,7 +99,7 @@ function App() {
         <Page title="Example app">
           <ResourceList
             resourceName={resourceName}
-            items={filteredList}
+            items={filteredItems!}
             filterControl={filterControl}
             renderItem={renderItem}
           />
