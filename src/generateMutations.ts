@@ -211,7 +211,7 @@ const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLS
     const output: { [key: string]: any } = {}
 
     mutationArgs?.forEach(argument => {
-        const varName = `Mutation__${mutation.name.value}__${argument.name.value}`
+        const varName = argument.name.value
         const argTypeName = getTypeName(argument.type);
         const fieldTyping = schema.getType(argTypeName);
         const nextNode = fieldTyping?.astNode
@@ -258,7 +258,7 @@ const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema:
     } = {}
 
     mutation?.arguments?.forEach(arg => {
-        const varName = `Mutation__${mutation.name.value}__${arg.name.value}`
+        const varName = arg.name.value
         variableDefinitionsMap[varName] = getVariableDefinition(varName, arg.type)
         args.push(getVariable(arg.name.value, varName))
     })

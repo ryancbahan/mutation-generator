@@ -2,6 +2,8 @@ import { useState } from 'react';
 import introspectionQuery from '../graphql.schema.json'
 import { buildClientSchema, printSchema, Source, buildSchema, IntrospectionQuery, print } from 'graphql'
 import enTranslations from '@shopify/polaris/locales/en.json';
+import { GraphQLCodeBlock } from 'react-graphql-syntax-highlighter';
+import 'react-graphql-syntax-highlighter/dist/style.css';
 import {
   AppProvider,
   Page,
@@ -52,18 +54,13 @@ function App() {
     const { mutationInfo, mutationDocument, variableValues } = item
     const { args } = mutationInfo
 
-    console.log({ variableValues })
-
     return (
       <ResourceItem id={Math.random().toString()} onClick={() => { }}>
-        <Card>
+        <Card title={mutationInfo.name}>
           <Card.Section>
             <Stack vertical>
               <Stack.Item>
                 <TextContainer>
-                  <Heading>
-                    {mutationInfo.name}
-                  </Heading>
                   <p>{mutationInfo.description.value}</p>
                 </TextContainer>
               </Stack.Item>
@@ -77,9 +74,11 @@ function App() {
                 <TextContainer>
                   <Heading>Example</Heading>
                   <p><TextStyle variation='strong'>Mutation</TextStyle></p>
-                  <code>{print(mutationDocument)}</code>
+                  <GraphQLCodeBlock src={print(mutationDocument)} />
+                  {/* <code>{print(mutationDocument)}</code> */}
                   <p><TextStyle variation='strong'>Variables</TextStyle></p>
-                  <code>{JSON.stringify(variableValues, null, '\t')}</code>
+                  <GraphQLCodeBlock src={JSON.stringify(variableValues, null, '\t')} />
+                  {/* <code>{JSON.stringify(variableValues, null, '\t')}</code> */}
                 </TextContainer>
               </Stack.Item>
             </Stack>
