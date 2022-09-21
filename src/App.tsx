@@ -37,22 +37,22 @@ function App() {
 
     return (
       <span key={Math.random().toString()}>
-        <Stack vertical spacing="tight">
-          <Stack.Item>
-            <TextContainer spacing="tight">
-              <p>
-                <b>{name?.value}</b>: {description?.value}
-              </p>
-            </TextContainer>
-          </Stack.Item>
-        </Stack>
+        <Stack.Item>
+          <TextContainer spacing="tight">
+            <p>
+              <b>{name?.value}</b>: {description?.value}
+            </p>
+          </TextContainer>
+        </Stack.Item>
       </span>
     );
   }
 
   function renderItem(item: any) {
-    const { mutationInfo, mutationDocument } = item
+    const { mutationInfo, mutationDocument, variableValues } = item
     const { args } = mutationInfo
+
+    console.log({ variableValues })
 
     return (
       <ResourceItem id={Math.random().toString()} onClick={() => { }}>
@@ -73,7 +73,15 @@ function App() {
                 </Heading>
               </Stack.Item>
               {args.map((arg: any) => renderArg(arg))}
-              <code>{print(mutationDocument)}</code>
+              <Stack.Item>
+                <TextContainer>
+                  <Heading>Example</Heading>
+                  <p><TextStyle variation='strong'>Mutation</TextStyle></p>
+                  <code>{print(mutationDocument)}</code>
+                  <p><TextStyle variation='strong'>Variables</TextStyle></p>
+                  <code>{JSON.stringify(variableValues, null, '\t')}</code>
+                </TextContainer>
+              </Stack.Item>
             </Stack>
           </Card.Section>
           <Card.Section>
