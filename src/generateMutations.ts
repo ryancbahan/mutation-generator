@@ -25,7 +25,7 @@ function getName(name: string): NameNode {
 }
 
 // Default location
-const loc: Location = {
+const loc: any = {
     start: 0,
     end: 0,
     startToken: null,
@@ -33,7 +33,7 @@ const loc: Location = {
     source: null
 }
 
-function getDocumentDefinition(definitions: DefinitionNode[]): DocumentNode {
+function getDocumentDefinition(definitions: any): DocumentNode {
     return {
         kind: Kind.DOCUMENT,
         definitions,
@@ -142,13 +142,13 @@ const getEnumTypeValue = (argTypeName: string) => {
     }
 }
 
-const getNestedObjectValues = (node: InputObjectTypeDefinitionNode | ObjectTypeDefinitionNode, schema: GraphQLSchema, nextSelectionSet?: SelectionSetNode) => {
-    const selectionSet: SelectionSetNode = {
+const getNestedObjectValues = (node: InputObjectTypeDefinitionNode | ObjectTypeDefinitionNode, schema: GraphQLSchema, nextSelectionSet?: any) => {
+    const selectionSet: {kind: Kind, selections?: any[]} = {
         kind: Kind.SELECTION_SET,
         selections: []
     }
 
-    const selection = {
+    const selection: {kind: Kind, name: NameNode, selectionSet?: any, arguments?: any[]} = {
         kind: Kind.FIELD,
         name: getName(node.name.value),
         selectionSet,
@@ -163,12 +163,12 @@ const getNestedObjectValues = (node: InputObjectTypeDefinitionNode | ObjectTypeD
         const fieldTyping = schema.getType(fieldTypeName);
         const nextNode = fieldTyping?.astNode
 
-        const innerSelectionSet: SelectionSetNode = {
+        const innerSelectionSet: {kind: Kind, selections?: any[]} = {
             kind: Kind.SELECTION_SET,
             selections: []
         }
 
-        const innerSelection = {
+        const innerSelection: {kind: Kind, name: NameNode, selectionSet?: any, arguments?: any[]} = {
             kind: Kind.FIELD,
             name: getName(field.name.value),
             selectionSet: innerSelectionSet,
@@ -249,7 +249,7 @@ const generateArgsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLS
 
 const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema: GraphQLSchema) => {
     const mutationTypeName = getTypeName(mutation.type)
-    const mutationFieldTyping = schema.getType(mutationTypeName)
+    const mutationFieldTyping = schema.getType(mutationTypeName) as any
     const fields = mutationFieldTyping?.astNode?.fields
     const selections = []
     const args: ArgumentNode[] = []
@@ -263,7 +263,7 @@ const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema:
         args.push(getVariable(arg.name.value, varName))
     })
 
-    const selectionSet: SelectionSetNode = {
+    const selectionSet: {kind: Kind, selections: any[]} = {
         kind: Kind.SELECTION_SET,
         selections: []
     }
@@ -290,7 +290,8 @@ const generateFieldsAndVarsForMutation = (mutation: FieldDefinitionNode, schema:
 
         if (nextNode?.kind === Kind.OBJECT_TYPE_DEFINITION) {
             const { selectionSet: nextSelectionSet } = getNestedObjectValues(nextNode, schema)
-            selection.selectionSet = nextSelectionSet
+            const s = selection as any
+            s.selectionSet = nextSelectionSet
         }
     })
 
@@ -303,46 +304,32 @@ export function generateMutations(
 
     const mutationRoot = schema.getMutationType()!.astNode!
 
-    // just use one mutation at a time for now because seeing all 254 in dev is a lot
+    const outputs = mutationRoot.fields?.map(field => {
+        const { output: variableValues } = generateArgsForMutation(field, schema)
+        const { selections, variableDefinitionsMap } = generateFieldsAndVarsForMutation(field, schema)
 
-    // const outputs = mutationRoot.fields?.map(field => {
-    //   const args = generateArgsForMutation(field, schema)
-    //   const mutationDocument = {
-    //     kind: Kind.OPERATION_DEFINITION,
-    //     operation: 'mutation',
-    //     // selectionSet,
-    //     // variableDefinitions: Object.values(variableDefinitionsMap),
-    //     loc,
-    //     name: getName(field.name.value)
-    //   }
+        const selectionSet = {
+            kind: Kind.SELECTION_SET,
+            selections
+        }
 
-    //   return {mutationDocument, args}
-    // });
+        const document = {
+            kind: Kind.OPERATION_DEFINITION,
+            operation: 'mutation' as OperationTypeNode,
+            selectionSet,
+            variableDefinitions: Object.values(variableDefinitionsMap),
+            loc,
+            name: getName(field?.name?.value)
+        }
 
-    // console.log({outputs})
+        const definitions = [document]
+        const mutationDocument = getDocumentDefinition(definitions)
 
-    const { output: variableValues } = generateArgsForMutation(mutationRoot?.fields[1], schema)
-    const { selections, variableDefinitionsMap } = generateFieldsAndVarsForMutation(mutationRoot?.fields[1], schema)
+        return {
+            mutationDocument,
+            variableValues,
+        }
+    });
 
-    const selectionSet = {
-        kind: Kind.SELECTION_SET,
-        selections
-    }
-
-    const document = {
-        kind: Kind.OPERATION_DEFINITION,
-        operation: 'mutation' as OperationTypeNode,
-        selectionSet,
-        variableDefinitions: Object.values(variableDefinitionsMap),
-        loc,
-        name: getName(mutationRoot!.fields![1]?.name?.value)
-    }
-
-    const definitions = [document]
-    const mutationDocument = getDocumentDefinition(definitions)
-
-    return {
-        mutationDocument,
-        variableValues,
-    }
+    return outputs
 }
