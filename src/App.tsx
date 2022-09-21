@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import introspectionQuery from '../graphql.schema.json'
 import { buildClientSchema, printSchema, Source, buildSchema, IntrospectionQuery, print } from 'graphql'
 import enTranslations from '@shopify/polaris/locales/en.json';
-import { GraphQLCodeBlock } from 'react-graphql-syntax-highlighter';
-import 'react-graphql-syntax-highlighter/dist/style.css';
+import synthwave84 from 'prism-react-renderer/themes/synthwave84';
+import Highlight, { defaultProps } from "prism-react-renderer";
 import {
   AppProvider,
   Page,
@@ -18,7 +18,8 @@ import {
   Heading,
   TextStyle,
   TextContainer,
-  Link
+  Link,
+  Pagination
 } from '@shopify/polaris';
 
 import {
@@ -26,19 +27,26 @@ import {
 } from "./generateMutations";
 
 function App() {
+  const [paginationIndex, setPaginationIndex] = useState(0)
   const [queryValue, setQueryValue] = useState("");
-  const builtSchema = buildClientSchema(introspectionQuery as IntrospectionQuery);
-  const schemaLanguage = printSchema(builtSchema);
-  const source = new Source(schemaLanguage);
-  const validSchema = buildSchema(source, { assumeValidSDL: true });
+  const [list, setList] = useState<any[]>([])
 
-  const mutationList: any[] = generateMutations(validSchema)!;
+  useEffect(() => {
+    if (!list.length) {
+      const builtSchema = buildClientSchema(introspectionQuery as IntrospectionQuery);
+      const schemaLanguage = printSchema(builtSchema);
+      const source = new Source(schemaLanguage);
+      const validSchema = buildSchema(source, { assumeValidSDL: true });
+      const mutationList: any[] = generateMutations(validSchema)!;
+      setList(mutationList)
+    }
+  }, [])
 
   function renderArg(arg: any) {
     const { name, description } = arg
 
     return (
-      <span key={Math.random().toString()}>
+      <span key={description}>
         <Stack.Item>
           <TextContainer spacing="tight">
             <p>
@@ -55,7 +63,7 @@ function App() {
     const { args } = mutationInfo
 
     return (
-      <ResourceItem id={Math.random().toString()} onClick={() => { }}>
+      <ResourceItem id={mutationInfo.name} onClick={() => { }}>
         <Card title={mutationInfo.name}>
           <Card.Section>
             <Stack vertical>
@@ -74,11 +82,33 @@ function App() {
                 <TextContainer>
                   <Heading>Example</Heading>
                   <p><TextStyle variation='strong'>Mutation</TextStyle></p>
-                  <GraphQLCodeBlock src={print(mutationDocument)} />
-                  {/* <code>{print(mutationDocument)}</code> */}
+                  <Highlight {...defaultProps} theme={synthwave84} code={print(mutationDocument)} language="graphql">
+                    {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                      <pre className={className} style={style}>
+                        {tokens.map((line, i) => (
+                          <div {...getLineProps({ line, key: i })}>
+                            {line.map((token, key) => (
+                              <span {...getTokenProps({ token, key })} />
+                            ))}
+                          </div>
+                        ))}
+                      </pre>
+                    )}
+                  </Highlight>
                   <p><TextStyle variation='strong'>Variables</TextStyle></p>
-                  <GraphQLCodeBlock src={JSON.stringify(variableValues, null, '\t')} />
-                  {/* <code>{JSON.stringify(variableValues, null, '\t')}</code> */}
+                  <Highlight {...defaultProps} theme={synthwave84} code={JSON.stringify(variableValues, null, '\t')} language="jsx">
+                    {({ className, style, tokens, getLineProps, getTokenProps }) => (
+                      <pre className={className} style={style}>
+                        {tokens.map((line, i) => (
+                          <div {...getLineProps({ line, key: i })}>
+                            {line.map((token, key) => (
+                              <span {...getTokenProps({ token, key })} />
+                            ))}
+                          </div>
+                        ))}
+                      </pre>
+                    )}
+                  </Highlight>
                 </TextContainer>
               </Stack.Item>
             </Stack>
@@ -126,18 +156,53 @@ function App() {
     plural: "available mutations",
   };
 
-  const filteredItems = mutationList.filter(item => item.mutationInfo.name.includes(queryValue))
+
+  const onPrevious = () => {
+    if (paginationIndex === 0 || !filteredItems.length) {
+      setPaginationIndex(0)
+      return
+    }
+    setPaginationIndex(paginationIndex - 10)
+  }
+
+  const onNext = () => {
+    if (!filteredItems.length) {
+      setPaginationIndex(paginationIndex - 10)
+      return
+    }
+    setPaginationIndex(paginationIndex + 10)
+  }
+
+  const filteredItems = list
+    .filter(item => item.mutationInfo.name.includes(queryValue))
+    .slice(paginationIndex, paginationIndex + 10)
 
   return (
     <AppProvider i18n={enTranslations}>
       <Frame>
         <Page title="Dev Portal">
+          <Stack distribution='center' alignment='center'>
+            <Pagination
+              hasPrevious={paginationIndex > 0}
+              onPrevious={onPrevious}
+              hasNext={filteredItems.length > 0}
+              onNext={onNext}
+            />
+          </Stack>
           <ResourceList
             resourceName={resourceName}
             items={filteredItems!}
             filterControl={filterControl}
             renderItem={renderItem}
           />
+          <Stack distribution='center' alignment='center'>
+            <Pagination
+              hasPrevious={paginationIndex > 0}
+              onPrevious={onPrevious}
+              hasNext={filteredItems.length > 0}
+              onNext={onNext}
+            />
+          </Stack>
         </Page>
       </Frame>
     </AppProvider>
