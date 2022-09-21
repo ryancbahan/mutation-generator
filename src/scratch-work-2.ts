@@ -11,7 +11,7 @@ import {
   //   InternalConfiguration
   // } from './scratch-work'
 
-//   type Variables = { [varName: string]: any }
+  // type Variables = { [varName: string]: any }
 
 //   export type ProviderFunction = (
 //     variables: Variables,
