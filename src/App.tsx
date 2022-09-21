@@ -15,7 +15,8 @@ import {
   Frame,
   Heading,
   TextStyle,
-  TextContainer
+  TextContainer,
+  Link
 } from '@shopify/polaris';
 
 import {
@@ -31,8 +32,27 @@ function App() {
 
   const mutationList: any[] = generateMutations(validSchema)!;
 
+  function renderArg(arg: any) {
+    const { name, description } = arg
+
+    return (
+      <span key={Math.random().toString()}>
+        <Stack vertical spacing="tight">
+          <Stack.Item>
+            <TextContainer spacing="tight">
+              <p>
+                <b>{name?.value}</b>: {description?.value}
+              </p>
+            </TextContainer>
+          </Stack.Item>
+        </Stack>
+      </span>
+    );
+  }
+
   function renderItem(item: any) {
     const { mutationInfo } = item
+    const { args } = mutationInfo
 
     return (
       <ResourceItem id={Math.random().toString()} onClick={() => { }}>
@@ -52,6 +72,14 @@ function App() {
                   Arguments
                 </Heading>
               </Stack.Item>
+              {args.map((arg: any) => renderArg(arg))}
+              <Link>{"Expand ->"}</Link>
+            </Stack>
+          </Card.Section>
+          <Card.Section>
+            <Stack alignment='center'>
+              <Button primary>Run once</Button>
+              <Button>Run five times</Button>
             </Stack>
           </Card.Section>
         </Card>
@@ -96,7 +124,7 @@ function App() {
   return (
     <AppProvider i18n={enTranslations}>
       <Frame>
-        <Page title="Example app">
+        <Page title="Dev Portal">
           <ResourceList
             resourceName={resourceName}
             items={filteredItems!}
